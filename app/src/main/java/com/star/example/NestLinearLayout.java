@@ -26,8 +26,6 @@ public class NestLinearLayout extends LinearLayout {
     private int pagingTouchSlop;
     private boolean preventForHorizontal = false;
 
-
-
     public NestLinearLayout(Context context) {
         this(context, null);
     }
@@ -40,7 +38,6 @@ public class NestLinearLayout extends LinearLayout {
         super(context, attrs, defStyleAttr);
         init();
     }
-
 
     private void init() {
         pagingTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop() * 2;
