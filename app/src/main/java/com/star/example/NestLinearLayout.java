@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -48,6 +49,8 @@ public class NestLinearLayout extends LinearLayout {
             case MotionEvent.ACTION_DOWN:
                 downY = ev.getY();
                 secondY = second.getTop();
+                Log.e(TAG, "MotionEvent.ACTION_DOWN boolean == " + (downY >= second.getTop()));
+                super.dispatchTouchEvent(ev);
                 return downY >= second.getTop();
             case MotionEvent.ACTION_MOVE:
                 moveDeltaY = downY - ev.getY();
@@ -55,9 +58,11 @@ public class NestLinearLayout extends LinearLayout {
                     moveDeltaY = getMeasuredHeight();
                 }
                 requestLayout();
+                Log.e(TAG, "MotionEvent.ACTION_MOVE ");
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                Log.e(TAG, "MotionEvent.ACTION_UP or ACTION_CANCEL ");
                 return super.dispatchTouchEvent(ev);
             default:
                 break;
