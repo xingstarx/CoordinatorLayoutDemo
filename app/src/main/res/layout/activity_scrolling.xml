@@ -11,7 +11,8 @@
         android:id="@+id/player"
         android:layout_width="match_parent"
         android:layout_height="160dp"
-        android:background="@android:color/black" />
+        app:layout_behavior="com.star.example.behavior.github.PlayerBehavior"
+        android:background="@android:color/holo_red_dark" />
 
     <!--<LinearLayout-->
         <!--android:orientation="horizontal"-->
@@ -27,7 +28,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.star.example.behavior.github.ViewPagerBehavior"
-        android:layout_marginTop="160dp"
         android:orientation="vertical"/>
 
 </android.support.design.widget.CoordinatorLayout>
