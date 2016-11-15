@@ -1,12 +1,11 @@
 package com.star.example;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
 
 /**
@@ -19,27 +18,33 @@ public class NestLinearLayout extends LinearLayout {
     private View second;
     private boolean canPull = false;//是否向上拉动
     private boolean isLayout = false;//是否第一次Layout
-    private float moveDeltaY = 0;//滑动的距离
+    private float offsetX = 0;//滑动的x轴距离
+    private float offsetY = 0;//滑动的y轴距离
+    private float downX;//点击的x坐标点
     private float downY;//点击的y坐标点
     private float secondY = 0;
+    private int pagingTouchSlop;
+    private boolean preventForHorizontal = false;
+
+
 
     public NestLinearLayout(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public NestLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public NestLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public NestLinearLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
 
+    private void init() {
+        pagingTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop() * 2;
+    }
     /**
      * 45
      */
@@ -47,15 +52,26 @@ public class NestLinearLayout extends LinearLayout {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                downX = ev.getX();
                 downY = ev.getY();
                 secondY = second.getTop();
+                preventForHorizontal = false;
                 Log.e(TAG, "MotionEvent.ACTION_DOWN boolean == " + (downY >= second.getTop()));
                 super.dispatchTouchEvent(ev);
                 return downY >= second.getTop();
             case MotionEvent.ACTION_MOVE:
-                moveDeltaY = downY - ev.getY();
-                if (moveDeltaY > getMeasuredHeight()) {
-                    moveDeltaY = getMeasuredHeight();
+                offsetX = downX - ev.getX();
+                offsetY = downY - ev.getY();
+                if (!preventForHorizontal && (Math.abs(offsetX) > pagingTouchSlop && Math.abs(offsetX) > Math.abs(offsetY))) {
+                    Log.e(TAG, "MotionEvent.ACTION_MOVE  , preventForHorizontal = true");
+                    preventForHorizontal = true;
+                }
+                if (preventForHorizontal) {
+                    return super.dispatchTouchEvent(ev);
+                }
+                if (offsetY > getMeasuredHeight()) {
+                    offsetY = getMeasuredHeight();
+                    return super.dispatchTouchEvent(ev);
                 }
                 requestLayout();
                 Log.e(TAG, "MotionEvent.ACTION_MOVE ");
@@ -81,21 +97,24 @@ public class NestLinearLayout extends LinearLayout {
         return super.onTouchEvent(event);
     }
 
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        first = getChildAt(0);
+        second = getChildAt(1);
+    }
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (!isLayout) {
-            first = getChildAt(0);
-            second = getChildAt(1);
-            isLayout = true;
-        }
-        if (second.getTop() <= 0 && moveDeltaY > 0) { //滑到顶部
+        if (second.getTop() <= 0 && offsetY > 0) { //滑到顶部
             second.layout(0, 0, second.getMeasuredWidth(), second.getMeasuredHeight());
-        } else if (moveDeltaY <= 0 && second.getTop() - first.getTop() >= first.getMeasuredHeight()) {
+        } else if (offsetY <= 0 && second.getTop() - first.getTop() >= first.getMeasuredHeight()) {
             super.onLayout(changed, l, t, r, b);
         } else if (second.getTop() > 0) {
-            second.layout(0, (int) secondY - (int) moveDeltaY, second.getMeasuredWidth(), (int) secondY - (int) moveDeltaY + second.getMeasuredHeight());
-        } else if (moveDeltaY <= 0 && second.getTop() < first.getBottom()) {
-            second.layout(0, (int) secondY - (int) moveDeltaY, second.getMeasuredWidth(), (int) secondY - (int) moveDeltaY + second.getMeasuredHeight());
+            second.layout(0, (int) secondY - (int) offsetY, second.getMeasuredWidth(), (int) secondY - (int) offsetY + second.getMeasuredHeight());
+        } else if (offsetY <= 0 && second.getTop() < first.getBottom()) {
+            second.layout(0, (int) secondY - (int) offsetY, second.getMeasuredWidth(), (int) secondY - (int) offsetY + second.getMeasuredHeight());
         } else {
             super.onLayout(changed, l, t, r, b);
         }

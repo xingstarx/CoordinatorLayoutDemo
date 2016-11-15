@@ -19,24 +19,38 @@
             android:minHeight="320dp"
             android:text="11111" />
 
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/framelayout"
             android:layout_width="match_parent"
             android:layout_height="600dp"
-            android:background="@android:color/background_light">
+            android:background="@android:color/background_light"
+            android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center"
-                android:text="222" />
-            <Button
-                android:id="@+id/button"
+                android:layout_height="48dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:background="@color/colorAccent"
+                    android:text="22222222222222222222222" />
+
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="button"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/view_pager"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="48dp"
-                android:clickable="true"
-                android:text="button"/>
-        </FrameLayout>
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
     </com.star.example.NestLinearLayout>
 </LinearLayout>
